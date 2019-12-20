@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <style>
+            body {
+                background: rgb(64,64,64);
+            }
+
+            h1 {
+                color: white;
+            }
+            #container {
+                width: fit-content;
+
+                margin-top: 200px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            #container img {
+                width: 50px;
+                filter: invert();
+                
+                position: relative;
+                top: calc(-25vh + 25px);
+                margin-left: 15px;
+                margin-right: 15px;
+            }
+            .editor {
+                width: 35vw;
+                height: 50vh;
+
+                display: inline-block;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Colidity::Blockchain made easy</h1>
+        <div id="container">
+            <div id="cs-editor" class="editor">
+            </div>
+            <img src="img/right-arrow.svg" />
+            <div id="sol-editor" class="editor">
+            </div>
+        </div>
+    </body>
+</html>
+<script src="https://pagecdn.io/lib/ace/1.4.6/ace.js" integrity="sha256-CVkji/u32aj2TeC+D13f7scFSIfphw2pmu4LaKWMSY8=" crossorigin="anonymous"></script>
+<script src="mode/solidity.js"></script>
+
+<script>
+var csEditor = ace.edit("cs-editor");
+csEditor.setTheme("ace/theme/monokai");
+csEditor.session.setMode("ace/mode/csharp");
+
+var solEditor = ace.edit("sol-editor");
+solEditor.setTheme("ace/theme/monokai");
+solEditor.session.setMode("ace/mode/solidity");
+solEditor.setReadOnly(true);
+
+csEditor.session.on('change', async function(delta) {
+    const resp = await fetch('https://colidity.azurewebsites.net/api/Transpile?code=bb9bSNnBVryJ9sacNm0PVQzkVGgPkWzCXre0xpxRbaJNpOQ4nTxJ4A==', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: JSON.stringify({
+            code: csEditor.getValue()
+        })
+    });
+    const json = await resp.json();
+
+    console.log(json);
+    solEditor.setValue(json.sol);
+});
+</script>
